@@ -77,6 +77,7 @@ def create_model(
         force_quick_gelu: bool = False,
         pretrained_image: bool = False,
         clip_model: str = "CLIP",
+        cache_dir: Optional[str] = None
 ):
     model_name = model_name.replace('/', '-')  # for callers using old naming with / in ViT names
 
@@ -112,7 +113,7 @@ def create_model(
             checkpoint_path = ''
             url = get_pretrained_url(model_name, pretrained)
             if url:
-                checkpoint_path = download_pretrained(url)
+                checkpoint_path = download_pretrained(url, root=cache_dir)
             elif os.path.exists(pretrained):
                 checkpoint_path = pretrained
 
@@ -146,12 +147,14 @@ def create_model_and_transforms(
         std: Optional[Tuple[float, ...]] = None,
         inmem = False,
         clip_model: str = "CLIP",
+        cache_dir: Optional[str] = None
 ):
     model = create_model(
         model_name, pretrained, precision, device, jit,
         force_quick_gelu=force_quick_gelu,
         pretrained_image=pretrained_image,
         clip_model=clip_model,
+        cache_dir=cache_dir
     )
     preprocess_train = image_transform(model.visual.image_size, is_train=True, mean=mean, std=std, inmem=inmem)
     preprocess_val = image_transform(model.visual.image_size, is_train=False, mean=mean, std=std)
